@@ -21,6 +21,11 @@ Machine state
 
 class CHIP_8 {
     public:
+        //ROM Loader - Read Bytes to Binary
+        static constexpr unsigned int MEM_SIZE = 4096;
+        static constexpr unsigned int ST_ADDRESS = 0x200; //known at compile time
+        static constexpr unsigned int REMAINDER = MEM_SIZE - ST_ADDRESS;
+
         std::array<u8, 16> registers {}; //16 8-bit registers
         std::array<u8, 4096> memory  {}; //4096 Bytes of Memory
         u16 PC                       {}; //program counter
@@ -32,13 +37,10 @@ class CHIP_8 {
         std::array<u8, 16> inp_keys  {}; //input-keys
         std::array<u32, 64 * 32> vid {}; //display-video
         u16 opcode;
+
+        bool LoadROM(const std::filesystem::path& filename);
+
 };
-
-
-//ROM Loader - Read Bytes to Binary
-constexpr unsigned int ST_ADDRESS = 0x200; //known at compile time
-constexpr unsigned int REMAINDER = memory.size() - ST_ADDRESS;
-
 
 //Load information into Memory from ROM 
 //std::filesystem::path provides us with system type encoding

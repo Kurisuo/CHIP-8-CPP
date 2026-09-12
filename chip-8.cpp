@@ -1,46 +1,11 @@
-#include <stdint.h>
-#include <fstream>
-#include <filesystem>
-#include <array>
+#include "chip-8.hpp"
 
-typedef uint64_t u64;
-typedef uint32_t u32;
-typedef uint16_t u16;
-typedef uint8_t u8;
+//Constructor
+CHIP_8::CHIP_8(){
 
-/*
-Machine state
-→ ROM loading
-→ Font loading
-→ Instruction decoding
-→ Fetch/decode/execute loop
-→ Display and input
-→ Timers
-→ Testing
-*/
+    PC = ST_ADDRESS; 
 
-class CHIP_8 {
-    public:
-        //ROM Loader - Read Bytes to Binary
-        static constexpr unsigned int MEM_SIZE = 4096;
-        static constexpr unsigned int ST_ADDRESS = 0x200; //known at compile time
-        static constexpr unsigned int REMAINDER = MEM_SIZE - ST_ADDRESS;
-
-        std::array<u8, 16> registers {}; //16 8-bit registers
-        std::array<u8, 4096> memory  {}; //4096 Bytes of Memory
-        u16 PC                       {}; //program counter
-        u16 index_register           {}; //store mem addresses
-        std::array<u16, 16> stack    {}; //16 Stack
-        u8 SP                        {}; //stack-pointer
-        u8 delay_timer               {}; //delay-timer
-        u8 sound_timer               {}; //sound-timer
-        std::array<u8, 16> inp_keys  {}; //input-keys
-        std::array<u32, 64 * 32> vid {}; //display-video
-        u16 opcode;
-
-        bool LoadROM(const std::filesystem::path& filename);
-
-};
+}
 
 //Load information into Memory from ROM 
 //std::filesystem::path provides us with system type encoding
@@ -62,8 +27,9 @@ bool CHIP_8::LoadROM(const std::filesystem::path& filename){
     }
     
     //Check for Valid ROM Size
-    const auto ROM_size = static_cast<u16>(file_end);
-    if(ROM_size > REMAINDER){
+    std::streamoff ROM_size = file_end - std::streampos{0};
+
+    if(ROM_size > REMAINDER || ROM_size < 0){
         std::printf("Failed at: ROM_SIZE INVALID");
         return false;
     }
@@ -83,14 +49,5 @@ bool CHIP_8::LoadROM(const std::filesystem::path& filename){
         return false;
     }
 
-
     return true;
 }
-
-
-
-
-
-
-
-
